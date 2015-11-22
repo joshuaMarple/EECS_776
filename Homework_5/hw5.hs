@@ -18,7 +18,7 @@ main = do
             eat
             atomically $ release_left_chopstick
             atomically $ release_right_chopstick
-            lop
+            loop
 
         let takeID = do
             my_id <- atomically (readTVar id)
@@ -31,8 +31,17 @@ main = do
         forkIO $ takeID $ loop
 
 take_left_chopstick :: TVar -> Int -> IO ()
-take_left_chopstick 
+take_left_chopstick a i = print ("pbfff") 
 
+take_right_chopstick :: TVar -> Int ->IO ()
+take_right_chopstick a i = print ("fffbp")
+
+
+release_left_chopstick :: TVar -> Int ->IO ()
+release_left_chopstick a i = print ("fffbp")
+
+release_right_chopstick :: TVar -> Int ->IO ()
+release_right_chopstick a i = print ("fffbp")
 
 eat :: Int -> IO ()
 eat id = print ("I'm philosopher ", id, " and I'm eating now.")
