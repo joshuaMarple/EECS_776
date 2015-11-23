@@ -6,26 +6,28 @@ import Control.Concurrent
 import Data.IORef
 
 main = do
-        id <- newTVarIO 0
+        id <- newTVarIO (0::Int)
         
-        chopstick0 <- newTVarIO 1 
-        chopstick1 <- newTVarIO 1 
-        chopstick2 <- newTVarIO 1 
-        chopstick3 <- newTVarIO 1 
-        chopstick4 <- newTVarIO 1
-        chops <- [chopstick0,chopstick1, chopstick2,chopstick3,chopstick4]
+        chopstick0 <- newTVarIO (1::Int) 
+        chopstick1 <- newTVarIO (1::Int) 
+        chopstick2 <- newTVarIO (1::Int) 
+        chopstick3 <- newTVarIO (1::Int) 
+        chopstick4 <- newTVarIO (1::Int)
+        let chops = [chopstick0,chopstick1, chopstick2,chopstick3,chopstick4]
 
-        let loop my_id = do
-            atomically $ take_left_chopstick ((readTVar my_id) -1) chops 
-            atomically $ take_right_chopstick (readTVar my_id) chops
-            eat my_id
-            atomically $ release_left_chopstick ((readTVar my_id) - 1) chops
-            atomically $ release_right_chopstick (readTVar my_id) chops
-            loop my_id
+        let loop phil_id = do
+            --phil_id <- readTVarIO my_id
+            atomically $ take_left_chopstick (phil_id -1) chops 
+            atomically $ take_right_chopstick phil_id chops
+            eat phil_id
+            atomically $ release_left_chopstick (phil_id - 1) chops
+            atomically $ release_right_chopstick phil_id chops
+            loop phil_id
 
         let takeID = do
-            my_id <- atomically (readTVar id)
-            writeTVar id $ (atomically (readTVar id)) + 1
+            my_id <- readTVarIO id
+            
+            atomically $ writeTVar id $ my_id + 1
             loop my_id
         
         forkIO $ takeID 
