@@ -36,9 +36,9 @@ loop phil_id chops = do
 
 take_chopstick :: Int -> [TVar Int] -> STM ()
 take_chopstick i chops = do
-    if (i == (-1))
-        then do chopup <- readTVarIO (chops !! 4) 
-        else do chopup <- readTVarIO (chops !! i) 
+  if (i == (-1))
+    then chopup <- readTVarIO (chops !! 4) 
+    else chopup <- readTVarIO (chops !! i) 
 
   if (chopup == 1) 
     then writeTVar chopup 0
