@@ -30,8 +30,14 @@ loop phil_id chops = do
       
       atomically $ take_chopstick (phil_id - 1) chops 
       atomically $ take_chopstick phil_id chops
-       
-      eat phil_id
+      left <- if (phil_id == 4)
+        then 0
+        else (phil_id - 1)
+      right <- if (phil_id == 0)
+        then 4
+        else phil_id
+      when (chop !! left == phil_id && chop !! right == phil_id ) 
+            eat phil_id
       
       atomically $ release_chopstick (phil_id - 1) chops
       atomically $ release_chopstick phil_id chops
