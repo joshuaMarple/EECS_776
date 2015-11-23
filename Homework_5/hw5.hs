@@ -1,8 +1,10 @@
 {-# LANGUAGE GADTs, KindSignatures #-}
 
+import Control.Monad
 import Control.Concurrent.STM
 import Control.Concurrent
 import Control.Monad.IO.Class
+
 
 import Data.IORef
 
@@ -30,8 +32,13 @@ loop phil_id chops = do
       
       atomically $ take_chopstick (phil_id - 1) phil_id chops 
       atomically $ take_chopstick phil_id phil_id chops
-      
-      eat phil_id
+      left <- if (phil_id == 4)
+        then 0
+        else (phil_id - 1)
+      right <- if (phil_id == 0)
+                then 4
+                else phil_id
+      when (chops !! left == phil_id && chops !! right == phil_id ) (eat phil_id)
       
       atomically $ release_chopstick (phil_id - 1) chops
       atomically $ release_chopstick phil_id chops
