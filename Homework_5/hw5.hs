@@ -28,9 +28,9 @@ loop phil_id chops = do
       
 
       
-      atomically $ take_chopstick (phil_id - 1) chops 
-      atomically $ take_chopstick phil_id chops
-       
+      atomically $ take_chopstick (phil_id - 1) phil_id chops 
+      atomically $ take_chopstick phil_id phil_id chops
+      
       eat phil_id
       
       atomically $ release_chopstick (phil_id - 1) chops
@@ -40,19 +40,18 @@ loop phil_id chops = do
 
    
 
-take_chopstick :: Int -> [TVar Int] -> STM ()
-take_chopstick i chops = do
+take_chopstick :: Int -> Int -> [TVar Int] -> STM ()
+take_chopstick i id chops = do
   chopup <- if (i == (-1))
     then readTVar (chops !! 4) 
     else readTVar (chops !! i) 
-
-  if (chopup == 1) 
-    then if i == (-1) then writeTVar (chops !! 4) 0 else writeTVar (chops !! i) 0 
+  if (chopup == (-1)) 
+    then if i == (-1) then writeTVar (chops !! 4) id else writeTVar (chops !! i) id 
     else return ()
 
 release_chopstick :: Int -> [TVar Int] -> STM ()
-release_chopstick (-1) chops = writeTVar (chops !! 4) 1
-release_chopstick i chops = writeTVar (chops !! i) 1
+release_chopstick (-1) chops = writeTVar (chops !! 4) (-1)
+release_chopstick i chops = writeTVar (chops !! i) (-1)
 
 eat :: Int -> IO ()
 eat id = print("I'm philosopher " , id , " and I'm eating now.")
