@@ -17,11 +17,12 @@ main = do
 
         let loop phil_id = do
             --phil_id <- readTVarIO my_id
-            atomically $ take_left_chopstick (phil_id -1) chops 
-            atomically $ take_right_chopstick phil_id chops
-            eat phil_id
-            atomically $ release_left_chopstick (phil_id - 1) chops
-            atomically $ release_right_chopstick phil_id chops
+            -- atomically $ take_chopstick (phil_id -1) chops 
+            -- atomically $ take_chopstick phil_id chops
+            -- eat phil_id
+            eat 1
+            -- atomically $ release_chopstick (phil_id - 1) chops
+            -- atomically $ release_chopstick phil_id chops
             loop phil_id
 
         let takeID = do
@@ -36,17 +37,15 @@ main = do
         forkIO $ takeID
         forkIO $ takeID
 
-take_left_chopstick :: Int -> [TVar Int] -> STM ()
-take_left_chopstick i chops = writeTVar (chops !! i) 0  
+-- take_both_chopsticks :: Int -> [TVar Int] -> STM ()
 
-take_right_chopstick :: Int -> [TVar Int] -> STM ()
-take_right_chopstick i chops = writeTVar (chops !! i) 0  
+take_chopstick :: Int -> [TVar Int] -> STM ()
+take_chopstick (-1) chops = writeTVar (chops !! 4) 0
+take_chopstick i chops = writeTVar (chops !! i) 0  
 
-release_left_chopstick :: Int -> [TVar Int] -> STM ()
-release_left_chopstick i chops = writeTVar (chops !! i) 1
-
-release_right_chopstick :: Int -> [TVar Int] -> STM ()
-release_right_chopstick i chops = writeTVar (chops !! i) 1
+release_chopstick :: Int -> [TVar Int] -> STM ()
+release_chopstick (-1) chops = writeTVar (chops !! 4) 1
+release_chopstick i chops = writeTVar (chops !! i) 1
 
 eat :: Int -> IO ()
 eat id = print ("I'm philosopher ", id, " and I'm eating now.")
