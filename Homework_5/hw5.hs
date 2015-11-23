@@ -6,7 +6,6 @@ import Control.Concurrent
 import Data.IORef
 
 main = do
-        id <- newTVarIO (0::Int)
         
         chopstick0 <- newTVarIO (1::Int) 
         chopstick1 <- newTVarIO (1::Int) 
@@ -15,29 +14,26 @@ main = do
         chopstick4 <- newTVarIO (1::Int)
         let chops = [chopstick0,chopstick1, chopstick2,chopstick3,chopstick4]
 
-        let loop phil_id = do
-            --phil_id <- readTVarIO my_id
-            -- atomically $ take_chopstick (phil_id -1) chops 
-            -- atomically $ take_chopstick phil_id chops
-            -- eat phil_id
-            eat 1
-            -- atomically $ release_chopstick (phil_id - 1) chops
-            -- atomically $ release_chopstick phil_id chops
-            loop phil_id
+        forkIO $ loop 0 chops
+        forkIO $ loop 1 chops
+        forkIO $ loop 2 chops
+        forkIO $ loop 3 chops
+        loop 4 chops
 
-        let takeID = do
-            my_id <- readTVarIO id
-            
-            atomically $ writeTVar id $ my_id + 1
-            loop my_id
-        
-        forkIO $ takeID 
-        forkIO $ takeID
-        forkIO $ takeID
-        forkIO $ takeID
-        forkIO $ takeID
+
 
 -- take_both_chopsticks :: Int -> [TVar Int] -> STM ()
+loop :: Int -> [TVar Int] -> IO ()
+loop phil_id chops = do
+      atomically $ take_chopstick (phil_id -1) chops 
+      atomically $ take_chopstick phil_id chops
+      eat phil_id
+      atomically $ release_chopstick (phil_id - 1) chops
+      atomically $ release_chopstick phil_id chops
+      threadDelay(1000)
+      loop phil_id chops
+
+   
 
 take_chopstick :: Int -> [TVar Int] -> STM ()
 take_chopstick (-1) chops = writeTVar (chops !! 4) 0
